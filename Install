@@ -1,0 +1,6 @@
+pip install scikit-learn pandas numpy matplotlib
+    รายละเอียดไลบรารีที่ใช้
+       - scikit-learn → ใช้สำหรับสร้างโมเดล Random Forest
+       - pandas → ใช้จัดการกับข้อมูลตาราง (DataFrame)
+       - numpy → ใช้จัดการข้อมูลเชิงตัวเลข (Array และ Matrix)
+       - matplotlib → ใช้สำหรับสร้างกราฟแสดงผลข้อมู

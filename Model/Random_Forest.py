@@ -6,72 +6,65 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import joblib
 
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, confusion_matrix
 
 # 2. Load and explore data
-DATA_PATH = os.path.join("..", "DataSet", "SPU_D.xlsx")
+DATA_PATH = os.path.join("..", "DataSet", "Air_quality_cleaned_v1.xlsx")
 df = pd.read_excel(DATA_PATH)
 
-# 3. เลือกเฉพาะคอลัมน์ Content และ Report time
-df = df[['Content', 'Report time']]
+# 3. เลือกคอลัมน์
+df = df[['Date', 'Time', 'Temp', 'Humidity', 'PM2.5', 'VOC', 'CO2', 'HCHO',]]
 
-# 4. แปลงข้อมูลในคอลัมน์ Report time เป็น datetime
-df['Report time'] = pd.to_datetime(df['Report time'])
-
-# 5. แปลงข้อมูลในคอลัมน์ Content เป็น float
-df['PM2.5'] = df['Content'].str.extract(r'PM2.5:(\d+\.?\d*)').astype(float)
-df['CO2'] = df['Content'].str.extract(r'CO2:(\d+\.?\d*)').astype(float)
-df['Temp'] = df['Content'].str.extract(r'Temp:(\d+\.?\d*)').astype(float)
-df['humid'] = df['Content'].str.extract(r'humid:(\d+\.?\d*)').astype(float)
-df['VOC'] = df['Content'].str.extract(r'VOC:(\d+\.?\d*)').astype(float)
-df['HCHO'] = df['Content'].str.extract(r'HCHO:(\d+\.?\d*)').astype(float)
-
-# 6. แยก `Report time` เป็นวันและเวลา
-df['Date'] = df['Report time'].dt.strftime('%Y-%m-%d')
-df['Time'] = df['Report time'].dt.strftime('%H:%M:%S')
-
-# 7. จัดการ Missing Values
+# 4. จัดการ Missing Values (กรณีบางค่าอาจหายไปในบางแถว)
+print(df.dtypes)
 numeric_cols = df.select_dtypes(include=np.number).columns
 df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
+print(df.isnull().sum())
 
-# 8. เลือก Features และ Target
-X = df[['PM2.5', 'Temp', 'humid', 'VOC', 'HCHO']]
-y = df['CO2']
+# 5.  เลือก Features และ Target
+X = df[['Temp', 'Humidity', 'PM2.5', 'VOC', 'HCHO']]  # Feature
+y = df['CO2']  # Target
 
-# 9. แบ่งข้อมูลเป็น Train และ Test
+# 6. แบ่งข้อมูลเป็น Train และ Test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# 10. Scaling ข้อมูล
+# 7. Scaling ข้อมูล
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# 11. Train Decision Tree Model
-dt = DecisionTreeRegressor(random_state=42)
-dt.fit(X_train_scaled, y_train)
+# 8. Train Random Forest Model
+rf = RandomForestRegressor(random_state=42)
+rf.fit(X_train_scaled, y_train)
 
-# 12. ทำนายผล
-y_pred = dt.predict(X_test_scaled)
+# 9. ทำนายผล
+y_pred = rf.predict(X_test_scaled)
 
-# 13. วัดผล Model
+# 10. วัดผล Model
 mse = mean_squared_error(y_test, y_pred)
 mae = mean_absolute_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 
-print("Mean Squared Error (MSE):", mse)
-print("Mean Absolute Error (MAE):", mae)
-print("R-squared (R2):", r2)
+print("Mean Squared Error (MSE): {:.2f}%".format(mse))
+print("Mean Absolute Error (MAE): {:.2f}%".format(mae))
+print("R-squared (R2): {:.2f}%".format(r2 * 100))
 
-# 14. วิเคราะห์ Feature Importance
-feature_importance = dt.feature_importances_
+# 11. วิเคราะห์ Feature Importance
+feature_importance = rf.feature_importances_
 feature_names = X.columns
 
 plt.figure(figsize=(10, 6))
 sns.barplot(x=feature_importance, y=feature_names, palette='viridis')
 plt.xlabel("Feature Importance")
 plt.ylabel("Features")
-plt.title("Decision Tree Feature Importance")
+plt.title("Random Forest Feature Importance")
+plt.show()
+
+# 12. ??
+plt.figure(figsize=(10, 6))
+sns.heatmap(df[numeric_cols].corr(), annot=True, cmap='coolwarm', fmt='.2f')
+plt.title("Correlation Matrix")
 plt.show()

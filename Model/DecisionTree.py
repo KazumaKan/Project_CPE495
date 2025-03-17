@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import joblib
 
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor  # Changed import
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, confusion_matrix
@@ -37,19 +37,18 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# 8. Train Random Forest Model
-rf = RandomForestRegressor(random_state=42)
-rf.fit(X_train_scaled, y_train)
-
+# 8. Train Decision Tree Model (Changed to DecisionTreeRegressor)
+dt = DecisionTreeRegressor(random_state=42)  # Changed to DecisionTreeRegressor
+dt.fit(X_train_scaled, y_train)
 
 # 9. ทำนายผล
-y_pred_train = rf.predict(X_train_scaled) # ทำนายข้อมูล train
-y_pred_test = rf.predict(X_test_scaled) # ทำนายข้อมูล test
+y_pred_train = dt.predict(X_train_scaled) # เพิ่มการทำนายข้อมูล train
+y_pred_test = dt.predict(X_test_scaled) # เพิ่มการทำนายข้อมูล test
 
 # 10. วัดผล Model
-mse_train = mean_squared_error(y_train, y_pred_train)
-mae_train = mean_absolute_error(y_train, y_pred_train)
-r2_train = r2_score(y_train, y_pred_train)
+mse_train = mean_squared_error(y_train, y_pred_train) # เพิ่มการคำนวณ mse train
+mae_train = mean_absolute_error(y_train, y_pred_train) # เพิ่มการคำนวณ mae train
+r2_train = r2_score(y_train, y_pred_train) # เพิ่มการคำนวณ r2 train
 
 mse_test = mean_squared_error(y_test, y_pred_test)
 mae_test = mean_absolute_error(y_test, y_pred_test)
@@ -66,14 +65,14 @@ print(f"MAE: {mae_test:.2f}")
 print(f"R-squared: {r2_test:.2%}")
 
 # 11. วิเคราะห์ Feature Importance
-feature_importance = rf.feature_importances_
+feature_importance = dt.feature_importances_  # DecisionTreeRegressor also has feature_importances_
 feature_names = X.columns
 
 plt.figure(figsize=(10, 6))
 sns.barplot(x=feature_importance, y=feature_names, palette='viridis')
 plt.xlabel("Feature Importance")
 plt.ylabel("Features")
-plt.title("Random Forest Feature Importance")
+plt.title("Decision Tree Feature Importance")
 plt.show()
 
 # 12. Correlation Matrix
@@ -90,7 +89,7 @@ elif r2_train < 0.7 and r2_test < 0.7:
     print("Underfitting: Model performs poorly on both training and test data.")
 else:
     print("Model performance is reasonable.")
-
+    
 # 14. Save Model
-joblib.dump(rf, "random_forest_model.pkl")
-joblib.dump(scaler, "Radom.pkl")
+joblib.dump(dt, "decision_tree_model.pkl")
+joblib.dump(scaler, "scaler.pkl")

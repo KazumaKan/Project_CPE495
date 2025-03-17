@@ -91,6 +91,54 @@ elif r2_train < 0.7 and r2_test < 0.7:
 else:
     print("Model performance is reasonable.")
 
-# 14. Save Model
+# 14. วิเคราะห์การกระจายตัวของข้อมูล
+plt.figure(figsize=(12, 8))
+for i, col in enumerate(numeric_cols):
+    plt.subplot(2, 4, i + 1)
+    sns.histplot(df[col], kde=True)
+    plt.title(f"Distribution of {col}")
+plt.tight_layout()
+plt.show()
+
+# 15. วิเคราะห์ Residuals (ส่วนต่างระหว่างค่าจริงกับค่าที่ทำนาย)
+residuals_train = y_train - y_pred_train
+residuals_test = y_test - y_pred_test
+
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 2, 1)
+sns.scatterplot(x=y_pred_train, y=residuals_train)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel("Predicted Values (Train)")
+plt.ylabel("Residuals (Train)")
+plt.title("Residual Plot (Train)")
+
+plt.subplot(1, 2, 2)
+sns.scatterplot(x=y_pred_test, y=residuals_test)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel("Predicted Values (Test)")
+plt.ylabel("Residuals (Test)")
+plt.title("Residual Plot (Test)")
+
+plt.tight_layout()
+plt.show()
+
+# 16. Histogram of Residuals
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 2, 1)
+sns.histplot(residuals_train, kde=True)
+plt.xlabel("Residuals (Train)")
+plt.title("Histogram of Residuals (Train)")
+
+plt.subplot(1, 2, 2)
+sns.histplot(residuals_test, kde=True)
+plt.xlabel("Residuals (Test)")
+plt.title("Histogram of Residuals (Test)")
+
+plt.tight_layout()
+plt.show()
+
+# 17. Save Model
 joblib.dump(rf, "random_forest_model.pkl")
 joblib.dump(scaler, "Radom.pkl")

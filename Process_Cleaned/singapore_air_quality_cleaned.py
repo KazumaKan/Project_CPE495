@@ -78,7 +78,6 @@ print(df_air_filtered.isnull().sum())
 print("\n📌 ค่า NaN ใน Ang Mo Kio (กรองแล้ว):")
 print(df_angmokio_filtered.isnull().sum())
 
-
 # 🛠 วิธีจัดการค่า NaN: เติมค่า NaN ด้วยค่าเฉลี่ยของแต่ละคอลัมน์ที่เป็นตัวเลข
 df_air_filtered.fillna(df_air_filtered.mean(numeric_only=True), inplace=True)
 df_angmokio_filtered.fillna(df_angmokio_filtered.mean(numeric_only=True), inplace=True)
@@ -186,4 +185,8 @@ print(year_counts)
 # แสดงผลรวมของข้อมูลในทุกปี
 total_records = year_counts.sum()
 print("\n📌 ผลรวมของข้อมูลในทุกปี:", total_records)
-
+#********************************************************************************************************************
+# บันทึก DataFrame เป็นไฟล์ CSV โดยไม่เก็บ index
+# 📂 บันทึก DataFrame เป็นไฟล์ CSV
+output_file_path = "../DataSet/singapore_air_quality_cleaned_v1.csv"
+df_merged.to_csv(output_file_path, index=False) 

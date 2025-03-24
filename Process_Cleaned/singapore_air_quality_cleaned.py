@@ -190,3 +190,4 @@ print("\n📌 ผลรวมของข้อมูลในทุกปี:",
 # 📂 บันทึก DataFrame เป็นไฟล์ CSV
 output_file_path = "../DataSet/singapore_air_quality_cleaned_v1.csv"
 df_merged.to_csv(output_file_path, index=False) 
+print(f"\n✅ DataSet ที่ทำความสะอาดแล้วถูกบันทึกลงที่: {output_file_path}")

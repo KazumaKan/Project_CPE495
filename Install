@@ -1,9 +1,63 @@
 pip install scikit-learn pandas numpy matplotlib
+    Libraries Used:
+        - scikit-learn → Used for building the Random Forest model
+        - pandas → Used for handling tabular data (DataFrame)
+        - numpy → Used for handling numerical data (Arrays and Matrices)
+        - matplotlib → Used for creating graphs to visualize the data
+
+pip install xgboost
+    Libraries Used:
+        - xgboost → Used for building the XGBoost model
+
+pip install streamlit
+    Libraries Used:
+        - streamlit → Used for creating web applications
+
+Extension: Data Wrangler for Viewing Datasets
+    - How to use:
+        1. Right-click the dataset file you want to view.
+        2. Select Open in Data Wrangler.
+    - How to view:
+        1. On the left side, under Data Summary, you can view the summarized information:
+            - Number of columns
+            - Number of rows
+            - Missing Values
+        2. You can filter the data by clicking the Filter button or the "..." in each column:
+            - Sort from lowest to highest
+            - Sort from highest to lowest
+            - Rename columns
+            - Drop columns
+            - Change column types
+            - Hide detailed column information
+        3. At the top right, you can toggle between View and Edit modes.
+        4. Columns with graphs allow you to view detailed data.
+        5. Data table view.
+        6. You can Export data.
+        7. You can Report an issue.
+        8. On the bottom left, you can view Cleaning Steps or the steps taken to clean the data.
+        9. At the bottom, you can view sample code.
+
+Run Code:
+    - *python/python3/py* + yourscript.py
+    - streamlit run yourscript.py
+
+##################################################################################
+
+pip install scikit-learn pandas numpy matplotlib
     รายละเอียดไลบรารีที่ใช้
        - scikit-learn → ใช้สำหรับสร้างโมเดล Random Forest
        - pandas → ใช้จัดการกับข้อมูลตาราง (DataFrame)
        - numpy → ใช้จัดการข้อมูลเชิงตัวเลข (Array และ Matrix)
        - matplotlib → ใช้สำหรับสร้างกราฟแสดงผลข้อมู
+
+pip install xgboost
+    รายละเอียดไลบรารีที่ใช้
+        - xgboost → ใช้สำหรับสร้างโมเดล XGBoost
+
+pip install streamlit
+    รายละเอียดไลบรารีที่ใช้
+        - streamlit → ใช้สำหรับสร้างเว็บแอพพลิเคชั่น
+
 
 Extension : Data Wrangler ในการดู DataSet
             - วิธีใช้
@@ -30,3 +84,7 @@ Extension : Data Wrangler ในการดู DataSet
                 7. Report an issue ได้
                 8. ล่างซ้ายสามารถดู Cleaning Steps หรือ ขั้นตอนการ Cleaning ได้
                 9. ทางด้านล่าง สามารถดูตัวอย่างโค้ดได้
+
+Run Code : 
+        - *python/python3/py* + ชื่อไฟล์ที่ต้องการรัน
+        - streamlit run + ชื่อไฟล์ที่ต้องการรัน

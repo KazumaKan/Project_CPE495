@@ -9,7 +9,7 @@ import joblib
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, confusion_matrix
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # 2. Load and explore data
 DATA_PATH = os.path.join("..", "DataSet", "Air_quality_cleaned_v1.csv")
@@ -40,7 +40,6 @@ X_test_scaled = scaler.transform(X_test)
 # 8. Train Random Forest Model
 rf = RandomForestRegressor(random_state=42)
 rf.fit(X_train_scaled, y_train)
-
 
 # 9. ทำนายผล
 y_pred_train = rf.predict(X_train_scaled) # ทำนายข้อมูล train
@@ -76,13 +75,18 @@ plt.ylabel("Features")
 plt.title("Random Forest Feature Importance")
 plt.show()
 
-# 12. Correlation Matrix
-plt.figure(figsize=(10, 6))
-sns.heatmap(df[numeric_cols].corr(), annot=True, cmap='coolwarm', fmt='.2f')
-plt.title("Correlation Matrix")
+# 12. ตรวจสอบ Underfitting และ Overfitting
+train_r2 = r2_train
+test_r2 = r2_test
+
+# สร้างกราฟเปรียบเทียบ R-squared
+plt.figure(figsize=(8, 6))
+plt.bar(['Training', 'Testing'], [train_r2, test_r2], color=['green', 'red'])
+plt.ylim(0, 1)
+plt.title('Comparison of R-squared: Training vs Testing')
+plt.ylabel('R-squared')
 plt.show()
 
-# 13. ตรวจสอบ Underfitting และ Overfitting
 print("\nModel Evaluation:")
 if r2_train > 0.95 and r2_test < 0.8:
     print("Overfitting: Model performs very well on training data but poorly on test data.")
@@ -91,16 +95,7 @@ elif r2_train < 0.7 and r2_test < 0.7:
 else:
     print("Model performance is reasonable.")
 
-# 14. วิเคราะห์การกระจายตัวของข้อมูล
-plt.figure(figsize=(12, 8))
-for i, col in enumerate(numeric_cols):
-    plt.subplot(2, 4, i + 1)
-    sns.histplot(df[col], kde=True)
-    plt.title(f"Distribution of {col}")
-plt.tight_layout()
-plt.show()
-
-# 15. วิเคราะห์ Residuals (ส่วนต่างระหว่างค่าจริงกับค่าที่ทำนาย)
+# 13. วิเคราะห์ Residuals (ส่วนต่างระหว่างค่าจริงกับค่าที่ทำนาย)
 residuals_train = y_train - y_pred_train
 residuals_test = y_test - y_pred_test
 
@@ -123,7 +118,7 @@ plt.title("Residual Plot (Test)")
 plt.tight_layout()
 plt.show()
 
-# 16. Histogram of Residuals
+# 14. Histogram of Residuals
 plt.figure(figsize=(12, 6))
 
 plt.subplot(1, 2, 1)
@@ -139,6 +134,34 @@ plt.title("Histogram of Residuals (Test)")
 plt.tight_layout()
 plt.show()
 
-# 17. Save Model
+# 15. ทำนายค่าของ CO2 สำหรับอนาคต (ใช้ข้อมูล Test Set หรือ Data ใหม่)
+# เราจะใช้ข้อมูล X_test ที่ยังไม่เคยเห็นมาก่อนในการทำนาย
+y_pred_future = rf.predict(X_test_scaled)
+
+# 16. แสดงผลการทำนายเทียบกับค่าจริง (Actual) ใน DataFrame
+results_df = pd.DataFrame({
+    'Actual CO2': y_test,
+    'Predicted CO2': y_pred_future
+})
+
+# 17. แสดงผลลัพธ์ (ค่า CO2 ที่ทำนายและจริง)
+results_df.head()
+
+# 18. Plot กราฟเปรียบเทียบผลลัพธ์
+plt.figure(figsize=(12, 6))
+plt.plot(y_test.index, y_test, label="Actual CO2", color='b', linewidth=2)
+plt.plot(y_test.index, y_pred_future, label="Predicted CO2", color='r', linestyle='--', linewidth=2)
+
+# เพิ่ม labels และ title
+plt.xlabel('Index', fontsize=12)
+plt.ylabel('CO2', fontsize=12)
+plt.title('Actual vs Predicted CO2', fontsize=14)
+
+plt.legend(fontsize=12)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# 19. Save Model
 joblib.dump(rf, "random_forest_model.pkl")
 joblib.dump(scaler, "Radom.pkl")

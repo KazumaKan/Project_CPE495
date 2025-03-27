@@ -21,4 +21,4 @@ In the future, additional models will be added, such as:
 
 ## Advice 💡
 
-After the clone, please go to the **Install** file to install the libraries required to run the project.
+After the clone, please go to the **Install** file to install the library required to run the project.

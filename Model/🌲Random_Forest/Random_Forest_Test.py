@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestRegressor
 import joblib
 
 # สร้าง UI สำหรับเลือกตัวแปรและแสดงผลลัพธ์
-st.title("CO2 Prediction Dashboard(DataSet ขยะ)")
+st.title("CO2 Prediction Dashboard")
 
 # เลือกค่าของตัวแปร
 pm25 = st.slider('PM2.5', min_value=0, max_value=500, value=10)

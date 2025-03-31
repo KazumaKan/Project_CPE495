@@ -6,13 +6,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import joblib
 
-from sklearn.linear_model import Lasso  # Change to Lasso Regression
+from xgboost import XGBRegressor  # Import XGBoost Regressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # 2. Load and explore data
-DATA_PATH = os.path.join("..", "DataSet", "Air_quality_cleaned_v1.csv")
+DATA_PATH = os.path.join("..", "..", "DataSet", "Air_quality_cleaned_v1.csv")
 df = pd.read_csv(DATA_PATH)
 df.columns
 
@@ -37,13 +37,13 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# 8. Train Lasso Regression Model (เปลี่ยนจาก RandomForestRegressor เป็น Lasso)
-lasso = Lasso(random_state=42)
-lasso.fit(X_train_scaled, y_train)
+# 8. Train XGBoost Model (เปลี่ยนจาก Lasso เป็น XGBoost)
+xgb = XGBRegressor(random_state=42)
+xgb.fit(X_train_scaled, y_train)
 
 # 9. ทำนายผล
-y_pred_train = lasso.predict(X_train_scaled)  # ทำนายข้อมูล train
-y_pred_test = lasso.predict(X_test_scaled)  # ทำนายข้อมูล test
+y_pred_train = xgb.predict(X_train_scaled)  # ทำนายข้อมูล train
+y_pred_test = xgb.predict(X_test_scaled)  # ทำนายข้อมูล test
 
 # 10. วัดผล Model
 mse_train = mean_squared_error(y_train, y_pred_train)
@@ -65,15 +65,15 @@ print(f"MAE: {mae_test:.2f}")
 print(f"R-squared: {r2_test:.2%}")
 
 # 11. วิเคราะห์ Feature Importance
-# In Lasso, the coefficients are used to determine feature importance
-feature_importance = np.abs(lasso.coef_)  # Use the absolute values of coefficients
+# XGBoost has built-in feature importance method
+feature_importance = xgb.feature_importances_
 feature_names = X.columns
 
 plt.figure(figsize=(10, 6))
 sns.barplot(x=feature_importance, y=feature_names, palette='viridis')
 plt.xlabel("Feature Importance")
 plt.ylabel("Features")
-plt.title("Lasso Regression Feature Importance")
+plt.title("XGBoost Feature Importance")
 plt.show()
 
 # 12. ตรวจสอบ Underfitting และ Overfitting
@@ -137,7 +137,7 @@ plt.show()
 
 # 15. ทำนายค่าของ CO2 สำหรับอนาคต (ใช้ข้อมูล Test Set หรือ Data ใหม่)
 # เราจะใช้ข้อมูล X_test ที่ยังไม่เคยเห็นมาก่อนในการทำนาย
-y_pred_future = lasso.predict(X_test_scaled)
+y_pred_future = xgb.predict(X_test_scaled)
 
 # 16. แสดงผลการทำนายเทียบกับค่าจริง (Actual) ใน DataFrame
 results_df = pd.DataFrame({
@@ -164,5 +164,5 @@ plt.tight_layout()
 plt.show()
 
 # 19. Save Model
-joblib.dump(lasso, "lasso_model.pkl")  # Save Lasso Model
+joblib.dump(xgb, "xgboost_model.pkl")  # Save XGBoost Model
 joblib.dump(scaler, "Scaler.pkl")  # Save the scaler as well

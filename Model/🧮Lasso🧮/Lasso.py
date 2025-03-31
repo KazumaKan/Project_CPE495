@@ -6,13 +6,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import joblib
 
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import Lasso  # Change to Lasso Regression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # 2. Load and explore data
-DATA_PATH = os.path.join("..", "DataSet", "Air_quality_cleaned_v1.csv")
+DATA_PATH = os.path.join("..", "..", "DataSet", "Air_quality_cleaned_v1.csv")
 df = pd.read_csv(DATA_PATH)
 df.columns
 
@@ -37,13 +37,13 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# 8. Train Decision Tree Model (เปลี่ยนจาก RandomForestRegressor เป็น DecisionTreeRegressor)
-dt = DecisionTreeRegressor(random_state=42)
-dt.fit(X_train_scaled, y_train)
+# 8. Train Lasso Regression Model (เปลี่ยนจาก RandomForestRegressor เป็น Lasso)
+lasso = Lasso(random_state=42)
+lasso.fit(X_train_scaled, y_train)
 
 # 9. ทำนายผล
-y_pred_train = dt.predict(X_train_scaled)  # ทำนายข้อมูล train
-y_pred_test = dt.predict(X_test_scaled)  # ทำนายข้อมูล test
+y_pred_train = lasso.predict(X_train_scaled)  # ทำนายข้อมูล train
+y_pred_test = lasso.predict(X_test_scaled)  # ทำนายข้อมูล test
 
 # 10. วัดผล Model
 mse_train = mean_squared_error(y_train, y_pred_train)
@@ -65,14 +65,15 @@ print(f"MAE: {mae_test:.2f}")
 print(f"R-squared: {r2_test:.2%}")
 
 # 11. วิเคราะห์ Feature Importance
-feature_importance = dt.feature_importances_  # Feature importance for DecisionTree
+# In Lasso, the coefficients are used to determine feature importance
+feature_importance = np.abs(lasso.coef_)  # Use the absolute values of coefficients
 feature_names = X.columns
 
 plt.figure(figsize=(10, 6))
 sns.barplot(x=feature_importance, y=feature_names, palette='viridis')
 plt.xlabel("Feature Importance")
 plt.ylabel("Features")
-plt.title("Decision Tree Feature Importance")
+plt.title("Lasso Regression Feature Importance")
 plt.show()
 
 # 12. ตรวจสอบ Underfitting และ Overfitting
@@ -136,7 +137,7 @@ plt.show()
 
 # 15. ทำนายค่าของ CO2 สำหรับอนาคต (ใช้ข้อมูล Test Set หรือ Data ใหม่)
 # เราจะใช้ข้อมูล X_test ที่ยังไม่เคยเห็นมาก่อนในการทำนาย
-y_pred_future = dt.predict(X_test_scaled)
+y_pred_future = lasso.predict(X_test_scaled)
 
 # 16. แสดงผลการทำนายเทียบกับค่าจริง (Actual) ใน DataFrame
 results_df = pd.DataFrame({
@@ -163,5 +164,5 @@ plt.tight_layout()
 plt.show()
 
 # 19. Save Model
-joblib.dump(dt, "decision_tree_model.pkl")  # Save Decision Tree Model
+joblib.dump(lasso, "lasso_model.pkl")  # Save Lasso Model
 joblib.dump(scaler, "Scaler.pkl")  # Save the scaler as well

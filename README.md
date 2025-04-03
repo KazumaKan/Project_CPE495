@@ -13,11 +13,11 @@ Building a machine learning model to predict the Air Quality Index (AQI).
 Currently built models include:
 - **Decision Tree** 🌳
 - **Random Forest** 🌲
-- **Lasso Regression** 📈
+- **Lasso Regression** 🧮
+- **XGBoost** 🚀
 
 In the future, additional models will be added, such as:
 - **Deep Learning Models** 💻
-- **XGBoost** 🚀
 
 ## Advice 💡
 

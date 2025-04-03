@@ -6,20 +6,20 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import joblib
 
-from xgboost import XGBRegressor  # Import XGBoost Regressor
+from xgboost import XGBRegressor  # Import XGBoost
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # 2. Load and explore data
-DATA_PATH = os.path.join("..", "..", "DataSet", "Air_quality_cleaned_v1.csv")
+DATA_PATH = os.path.join("..", "..", "AvailableData", "Air_quality_cleaned_v1.csv")
 df = pd.read_csv(DATA_PATH)
 df.columns
 
 # 3. เลือกคอลัมน์
 df = df[['Date', 'Time', 'Temp', 'Humidity','PM2.5', 'VOC', 'CO2', 'HCHO']]
 
-# 4. จัดการ Missing Values (กรณีบางค่าอาจหายไปในบางแถว)
+# 4. ตรวจสอบ Missing Values (กรณีบางค่าอาจหายไปในบางแถว)
 print(df.dtypes)
 numeric_cols = df.select_dtypes(include=np.number).columns
 df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
@@ -37,8 +37,8 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# 8. Train XGBoost Model (เปลี่ยนจาก Lasso เป็น XGBoost)
-xgb = XGBRegressor(random_state=42)
+# 8. Train XGBoost Model
+xgb = XGBRegressor(random_state=42)  # Use XGBRegressor instead of RandomForestRegressor
 xgb.fit(X_train_scaled, y_train)
 
 # 9. ทำนายผล
@@ -65,7 +65,6 @@ print(f"MAE: {mae_test:.2f}")
 print(f"R-squared: {r2_test:.2%}")
 
 # 11. วิเคราะห์ Feature Importance
-# XGBoost has built-in feature importance method
 feature_importance = xgb.feature_importances_
 feature_names = X.columns
 
@@ -164,5 +163,5 @@ plt.tight_layout()
 plt.show()
 
 # 19. Save Model
-joblib.dump(xgb, "xgboost_model.pkl")  # Save XGBoost Model
-joblib.dump(scaler, "Scaler.pkl")  # Save the scaler as well
+joblib.dump(xgb, "xgboost_model.pkl")
+joblib.dump(scaler, "Scaler.pkl")

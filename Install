@@ -9,6 +9,10 @@ pip install xgboost
     Libraries Used:
         - xgboost → Used for building the XGBoost model
 
+pip install tensorflow
+    Libraries Used:
+        - tensorflow → Used for building the Deep Learning model
+
 pip install streamlit
     Libraries Used:
         - streamlit → Used for creating web applications
@@ -54,10 +58,13 @@ pip install xgboost
     รายละเอียดไลบรารีที่ใช้
         - xgboost → ใช้สำหรับสร้างโมเดล XGBoost
 
+pip install tensorflow
+    รายละเอียดไลบรารีที่ใช้
+        - tensorflow → ใช้สำหรับสร้างโมเดล Deep Learning
+
 pip install streamlit
     รายละเอียดไลบรารีที่ใช้
         - streamlit → ใช้สำหรับสร้างเว็บแอพพลิเคชั่น
-
 
 Extension : Data Wrangler ในการดู DataSet
             - วิธีใช้
@@ -88,3 +95,4 @@ Extension : Data Wrangler ในการดู DataSet
 Run Code : 
         - *python/python3/py* + ชื่อไฟล์ที่ต้องการรัน
         - streamlit run + ชื่อไฟล์ที่ต้องการรัน
+        

@@ -17,6 +17,16 @@ pip install streamlit
     Libraries Used:
         - streamlit → Used for creating web applications
 
+pip install requests joblib pymongo
+    Libraries Used:
+        - requests → Used for making HTTP requests
+        - joblib → Used for saving and loading models
+        - pymongo → Used for connecting to MongoDB
+
+pip install python-socketio
+    Libraries Used:
+        - python-socketio → Used for connecting to WebSocket Server
+
 Extension: Data Wrangler for Viewing Datasets
     - How to use:
         1. Right-click the dataset file you want to view.
@@ -65,6 +75,16 @@ pip install tensorflow
 pip install streamlit
     รายละเอียดไลบรารีที่ใช้
         - streamlit → ใช้สำหรับสร้างเว็บแอพพลิเคชั่น
+
+pip install requests joblib pymongo
+    รายละเอียดไลบรารีที่ใช้
+        - requests → ใช้สำหรับทำ HTTP Request
+        - joblib → ใช้สำหรับบันทึกและโหลดโมเดล
+        - pymongo → ใช้สำหรับเชื่อมต่อกับ MongoDB
+
+pip install python-socketio
+    รายละเอียดไลบรารีที่ใช้
+        - python-socketio → ใช้สำหรับเชื่อมต่อกับ WebSocket Server
 
 Extension : Data Wrangler ในการดู DataSet
             - วิธีใช้

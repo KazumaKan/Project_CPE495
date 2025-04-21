@@ -12,13 +12,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # 2. Load and explore data
-DATA_PATH = os.path.join("..", "..", "AvailableData", "sukhothai_thammathirat_cleaned_v1.csv")
+DATA_PATH = os.path.join("..", "..", "AvailableData", "TrainModel.csv")
 df = pd.read_csv(DATA_PATH)
 df.columns
 
 # 3. เลือกคอลัมน์
-df = df[['date', 'pm25', 'pm10', 'o3', 'no2', 'so2', 'co', 'AQI', 'tavg', 'prcp',
-       'wdir', 'wspd', 'pres']]
+df = df[['date', 'pm2_5', 'TempC', 'Windspeed', 'pm10', 'co', 'no2', 'so2', 'o3', 'AQI']]
 
 # 4. จัดการ Missing Values (กรณีบางค่าอาจหายไปในบางแถว)
 print(df.dtypes)
@@ -27,8 +26,7 @@ df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
 print(df.isnull().sum())
 
 # 5.  เลือก Features และ Target
-X = df[['pm25', 'pm10', 'o3', 'no2', 'so2', 'co', 'tavg', 'prcp',
-       'wdir', 'wspd', 'pres']]  # Feature
+X = df[['pm2_5', 'TempC', 'Windspeed', 'pm10', 'co', 'no2', 'so2', 'o3']]  # Feature
 y = df['AQI']  # Target
 
 # 6. แบ่งข้อมูลเป็น Train และ Test

@@ -1,34 +1,54 @@
-# ================================================
-# 📦 1. Import Libraries
-# ================================================
 import pandas as pd
-import numpy as np
 import joblib
 import socketio
-from pymongo import MongoClient
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 from datetime import datetime
+import traceback
 
 # ================================================
-# 📁 2. Load Pre-trained Model & Scaler
+# 📁 โหลดโมเดลและ Scaler
 # ================================================
 rf_model = joblib.load("random_forest_model.pkl")
-scaler = joblib.load("Radom.pkl")
+
+try:
+    scaler = joblib.load("Random.pkl")  # ตรวจสอบว่าไฟล์นี้มีจริง
+except FileNotFoundError:
+    raise FileNotFoundError("❌ ไม่พบไฟล์ Scaler: Random.pkl")
 
 # ================================================
-# 🔌 3. Connect to Socket.IO Server
+# 🔌 เชื่อมต่อกับ Socket.IO Server
 # ================================================
 sio = socketio.Client()
-sio.connect("http://localhost:5084")
 
-# คอลัมน์ฟีเจอร์ที่ใช้ในการฝึกอบรม
-feature_cols = ['pm2_5', 'TempC', 'Windspeed', 'pm10', 'co', 'no2', 'so2', 'o3']
+# 🔸 รายชื่อฟีเจอร์ที่โมเดลต้องการ
+feature_cols = ['pm2_5', 'pm10', 'CO', 'NO2', 'SO2', 'O3']
 
-# MongoDB connection
-mongo_uri = "mongodb://walaleemauenjit:ITQDYaNhAw3wbR6h@localhost:27017/"
-mongo_client = MongoClient(mongo_uri)
+# ================================================
+# ☁️ เชื่อม MongoDB Atlas
+# ================================================
+mongo_uri = (
+    "mongodb+srv://walaleemauenjit:ITQDYaNhAw3wbR6h"
+    "@cluster0.puumjnp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+)
+
+mongo_client = MongoClient(mongo_uri, server_api=ServerApi('1'))
+
+try:
+    mongo_client.admin.command('ping')
+    print("✅ Connected to MongoDB Atlas successfully.")
+except Exception as e:
+    print(f"❌ MongoDB Atlas connection failed: {e}")
+    exit()
+
+# 🔸 เลือก database และ collection
 db = mongo_client["weatherDB"]
-collection = db["sensordatas"]
+raw_data_collection = db["sensordatas"]
+aqi_collection = db["predicted_aqi"]
 
+# ================================================
+# 🔌 EVENT HANDLERS
+# ================================================
 @sio.event
 def connect():
     print("✅ Connected to Socket.IO server!")
@@ -37,44 +57,64 @@ def connect():
 def disconnect():
     print("❌ Disconnected from Socket.IO server!")
 
-# เมื่อเซิร์ฟเวอร์ส่งข้อมูลเข้ามาใน event ชื่อว่า "sensor_data"
-@sio.on("sensor_data")
+# 🔄 แก้ให้รับ event 'newSensorData' แทน
+@sio.on("newSensorData")
 def handle_sensor_data(data):
     try:
-        print("📥 Received new data from sensor.")
+        print("📥 Received new data from sensor:")
+        print(data)  # แสดงข้อมูลที่รับมา
 
-        # แปลงเป็น DataFrame
+        # ➤ แปลงข้อมูลที่รับเข้ามาเป็น DataFrame
         df_new = pd.DataFrame([data])
 
-        # แปลง timestamp และตัดเฉพาะวันที่
-        df_new['timestamp'] = pd.to_datetime(df_new['timestamp'])
-        df_new['date'] = df_new['timestamp'].dt.date
+        # ➤ แปลง timestamp ถ้ามี หรือใช้เวลาปัจจุบัน
+        try:
+            df_new['timestamp'] = pd.to_datetime(df_new['timestamp'], errors='coerce')
+        except Exception as e:
+            print(f"⚠️ Timestamp error: {e}")
+            df_new['timestamp'] = datetime.now()
 
-        # ตรวจสอบว่าข้อมูลครบทุก feature ไหม
-        missing_cols = [col for col in feature_cols if col not in df_new.columns]
-        if missing_cols:
-            raise ValueError(f"❌ Missing columns: {missing_cols}")
+        # ➤ ตรวจสอบว่ามีฟีเจอร์ครบไหม
+        missing = [col for col in feature_cols if col not in df_new.columns]
+        if missing:
+            raise ValueError(f"❌ Missing columns: {missing}")
 
-        # คำนวณค่าเฉลี่ยจากชุดข้อมูลนี้ (กรณีรับ batch)
-        daily_avg_df = df_new.groupby('date')[feature_cols].mean().reset_index()
-        daily_avg_df = daily_avg_df.fillna(daily_avg_df.mean())
+        # ➤ เติม NaN ด้วยค่าเฉลี่ย
+        df_new = df_new.fillna(df_new.mean(numeric_only=True))
 
-        # Scaling
-        X_scaled = scaler.transform(daily_avg_df[feature_cols])
+        # ➤ Scaling และพยากรณ์
+        X_scaled = scaler.transform(df_new[feature_cols])
+        predicted_aqi = rf_model.predict(X_scaled)[0]
+        df_new['Predicted_AQI'] = predicted_aqi
 
-        # Predict
-        predicted_aqi = rf_model.predict(X_scaled)
-        daily_avg_df['Predicted_AQI'] = predicted_aqi
+        # ➤ บันทึกข้อมูลดิบลง collection แรก
+        raw_data_collection.insert_one(df_new.to_dict(orient="records")[0])
+        print("✅ Data inserted into 'sensordatas' collection.")
 
-        # Save to MongoDB
-        records = daily_avg_df[['date', 'Predicted_AQI']].to_dict(orient='records')
-        collection.insert_many(records)
+        # ➤ บันทึก AQI คาดการณ์ลง collection แยก
+        aqi_data = {
+            "timestamp": df_new['timestamp'].iloc[0],
+            "Predicted_AQI": float(predicted_aqi)
+        }
+        aqi_collection.insert_one(aqi_data)
+        print(f"🌫️ Predicted AQI: {predicted_aqi:.2f}")
+        print("✅ AQI data saved to MongoDB.")
 
-        print("✅ AQI prediction saved to MongoDB.")
+        # ✅ ตรวจสอบการดึงข้อมูลล่าสุด
+        print("🧪 ตรวจสอบข้อมูลล่าสุดใน 'sensordatas' ...")
+        latest = raw_data_collection.find().sort("timestamp", -1).limit(1)
+        for doc in latest:
+            print("📄 ข้อมูลล่าสุดจาก sensordatas:", doc)
+
+        # 🔄 ส่งค่ากลับไปยัง client ถ้าต้องการ
+        sio.emit("predicted_aqi", {"Predicted_AQI": float(predicted_aqi)})
 
     except Exception as e:
         print(f"⚠️ Error: {e}")
+        traceback.print_exc()  # แสดง stacktrace ช่วย debug
 
-# Connect to the socket server
-# sio.connect("http://localhost:5084")
+# ================================================
+# 🔌 เริ่มเชื่อมต่อ Socket.IO
+# ================================================
+sio.connect("ws://localhost:5084")
 sio.wait()

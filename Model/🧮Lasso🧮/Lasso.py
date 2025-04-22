@@ -37,7 +37,7 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# 8. Train Lasso Regression Model (เปลี่ยนจาก RandomForestRegressor เป็น Lasso)
+# 8. Train Lasso Regression Model
 lasso = Lasso(random_state=42)
 lasso.fit(X_train_scaled, y_train)
 

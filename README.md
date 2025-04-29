@@ -1,6 +1,6 @@
 # AQI Prediction and Data Cleaning 🌍📊
 
-This project consists of 2 main parts:
+This project consists of 2 main parts :
 
 ## 1. Data Cleaning 🧹
 
@@ -10,13 +10,13 @@ Cleaning and processing the dataset to deal with issues such as missing values, 
 
 Building a machine learning model to predict the Air Quality Index (AQI).
 
-Currently built models include:
+Currently built models include :
 - **Decision Tree** 🌳
 - **Random Forest** 🌲
 - **Lasso Regression** 🧮
 - **XGBoost** 🚀
 
-In the future, additional models will be added, such as:
+In the future, additional models will be added, such as :
 - **Deep Learning Models** 💻
 
 ## Advice 💡
